@@ -1,3 +1,5 @@
+Note This plugin is in extremely early development
+
 wp-bullhorn
 ===========
 
