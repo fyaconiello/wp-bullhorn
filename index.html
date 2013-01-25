@@ -59,6 +59,18 @@
 <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
 </form>
 
+<h3>Installation</h3>
+<ol>
+<li>Download the plugin directory and place in wp-content/plugins</li>
+<li>Activate the plugin</li>
+<li>Go to the plugin's settings page and fill in your Bullhorn API credentials</li>
+<li>Syncing data is currently configured to run as a <a href="http://codex.wordpress.org/Function_Reference/wp_schedule_event">wp_schedule_event</a>.
+  <ul>
+    <li>Option 1: If you only have a limited amount of data saved in bullhorn, leave as an event.</li>
+    <li>Option 2: If you need have a lot of bullhorn data (causing timeout), OR if you cannot wait for an event to trigger* / need the update to happen at an inflexable time. Then set a system cronjob to execute <strong>`php /full/path/to/wp-bullhorn/cron.php`</strong>.<br /><em>* Note: wp events happen the next time a wordress request is made at the schedule time</em></li>
+  </ul>
+</li>
+</ol>
       </section>
     </div>
 
