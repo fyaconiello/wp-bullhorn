@@ -6,8 +6,28 @@ $fields = array(
 		'help_text' => '',
 		'widget' => 'text'
 	),
-	'address' => array(
+	'address_address1' => array(
 		'label' => 'Address',
+		'help_text' => '',
+		'widget' => 'text'
+	),
+	'address_city' => array(
+		'label' => 'Address City',
+		'help_text' => '',
+		'widget' => 'text'
+	),
+	'address_countryID' => array(
+		'label' => 'Address Country',
+		'help_text' => '',
+		'widget' => 'text'
+	),
+	'address_state' => array(
+		'label' => 'Address State',
+		'help_text' => '',
+		'widget' => 'text'
+	),
+	'address_zip' => array(
+		'label' => 'Address Zip',
 		'help_text' => '',
 		'widget' => 'text'
 	),
@@ -349,9 +369,9 @@ $fields = array(
 		<th class="metabox_label_column"><label for="<?php echo $field; ?>"><?php echo _e($data['label'], $field); ?></label></th>
 		<td>
 		<?php if($data['widget'] == 'text') : ?>
-			<input type="text" id="<?php echo $field; ?>" name="<?php echo $field; ?>" value="<?php echo get_post_meta($post->ID, $field, true); ?>" />
+			<input type="text" id="<?php echo $field; ?>" name="<?php echo $field; ?>" value="<?php echo @get_post_meta($post->ID, $field, true); ?>" />
 		<?php elseif($data['widget'] == 'textarea') : ?>
-			<textarea id="<?php echo $field; ?>" name="<?php echo $field; ?>" rows="8" cols="40"><?php echo get_post_meta($post->ID, $field, true); ?></textarea>
+			<textarea id="<?php echo $field; ?>" name="<?php echo $field; ?>" rows="8" cols="40"><?php echo @get_post_meta($post->ID, $field, true); ?></textarea>
 		<?php endif; ?>	
 		<?php if(!empty($data['help_text'])) : ?>
 			<p class="help"><?php echo $data['help_text']; ?></p>

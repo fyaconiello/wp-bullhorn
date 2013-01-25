@@ -3,11 +3,11 @@ if(!class_exists('BullhornConnection'))
 {
 	class BullhornConnection
 	{
-		private $_wsdl_url 	= "https://api.bullhornstaffing.com/webservices-2.5/?wsdl";
+		private $_wsdl_url 	= "https://api.bullhornstaffing.com/webservices-1.1/?wsdl";
 		private $_auth			= NULL;
 		private $_client 		= NULL;
 		private $_params 		= array(
-			'trace' 				=> 1,
+			'trace' => 1,
 			'soap_version'	=> 'SOAP_1_1',			
 		);
 
@@ -18,9 +18,9 @@ if(!class_exists('BullhornConnection'))
 		{	
 			// Build an Authentication Request
 			$this->_auth = new stdClass();
-			$this->_auth->username = get_option('username');
-			$this->_auth->password = get_option('password');
-			$this->_auth->apiKey 	= get_option('apiKey');			
+			$this->_auth->username = $username;
+			$this->_auth->password = $password;
+			$this->_auth->apiKey = $api_key;			
 			
 			// init the client
 			$this->_client = new SoapClient($this->_wsdl_url, $this->_params);
