@@ -155,34 +155,45 @@ if(!class_exists('JobOrder'))
 			include(sprintf("%s/../templates/%s_metabox.php", dirname(__FILE__), self::POST_TYPE));			
 		} // END public function add_inner_meta_boxes($post)
 		
-		/**
-		 * Save the metaboxes for this custom post type
-		 */
-		public function save_post($post_id)
-		{
+        /**
+         * Save the metaboxes for this custom post type
+         */
+        public function save_post($post_id)
+        {
             // verify if this is an auto save routine. 
             // If it is our form has not been submitted, so we dont want to do anything
             if(defined('DOING_AUTOSAVE') && DOING_AUTOSAVE)
             {
                 return;
             }
-
-			if($_POST['post_type'] == self::POST_TYPE && current_user_can('edit_post', $post_id))
-			{
-				if(!empty($_POST['jobOrderID']))
-				{
-					foreach($this->_meta as $field)
-					{
-						// Update the post's meta field
-						update_post_meta($post_id, $field, $_POST[$field]);
-					}
-				}
-			}
-			else
-			{
-				return;
-			} // if($_POST['post_type'] == self::POST_TYPE && current_user_can('edit_post', $post_id))
-		} // END public function save_post($post_id)
+    
+            $data = array();
+            if(isset($_POST['post_type']))
+            {
+                $data = $_POST;
+            }
+            else
+            {
+                global $post_data;
+                $data = $post_data;
+            }
+    
+        	if($data['post_type'] == self::POST_TYPE && current_user_can('edit_post', $post_id))
+        	{
+        		if(!empty($data['jobOrderID']))
+        		{
+        			foreach($this->_meta as $field)
+        			{
+        				// Update the post's meta field
+        				update_post_meta($post_id, $field, $data[$field]);
+        			}
+        		}
+        	}
+        	else
+        	{
+        		return;
+        	} // if($data['post_type'] == self::POST_TYPE && current_user_can('edit_post', $post_id))
+        } // END public function save_post($post_id)
 		
 		/**
 		 * Sync the JobOrders from Bullhorn's API

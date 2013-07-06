@@ -36,6 +36,7 @@ if(!class_exists('BullhornJobOrder'))
          */
         public function get_multiple($connection, $arr_ids)
         {
+            $arr_job_orders = array();
             foreach(array_chunk($arr_ids, 20) as $chunk)
             {
                 $find_request = array (
@@ -47,7 +48,7 @@ if(!class_exists('BullhornJobOrder'))
                 try
                 { 
                     $findResult = $connection->get_client()->findMultiple($find_request);
-                    return $findResult->return->dtos;
+                    $arr_job_orders = array_merge($arr_job_orders, $findResult->return->dtos);
                 }
                 catch(SoapFault $fault)
                 {
@@ -55,7 +56,7 @@ if(!class_exists('BullhornJobOrder'))
                 }
             }
 
-            return FALSE;
+            return $arr_job_orders;
         } // END public function get_multiple($connection, $arr_ids)
 		
 		/**
