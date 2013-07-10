@@ -81,7 +81,7 @@ if(!class_exists('JobOrder'))
 			'workersCompRateID',
 			'yearsRequired',
 		);
-		
+
 		/**
 		 * The Constructor
 		 */
@@ -91,7 +91,7 @@ if(!class_exists('JobOrder'))
 			add_action('init', array(&$this, 'init'));
 			add_action('admin_init', array(&$this, 'admin_init'));
 		} // END public function __construct()
-		
+
 		/**
 		 * hook into WP's init action hook
 		 */
@@ -106,11 +106,11 @@ if(!class_exists('JobOrder'))
 		 * hook into WP's admin_init action hook
 		 */
 		public function admin_init()
-		{			
+		{
 			// Add metaboxes
 			add_action('add_meta_boxes', array(&$this, 'add_meta_boxes'));
 		} // END public function admin_init()
-		
+
 		/**
 		 * Create the post type
 		 */
@@ -124,49 +124,51 @@ if(!class_exists('JobOrder'))
 					),
 					'public' => true,
 					'has_archive' => true,
+					'yarpp_support' => true,
+					'taxonomies' => array( 'post_tag', 'category' ),
 					'description' => __("Job Orders from the Bullhorn API"),
 					'supports' => array(
-						'title', 'editor', 'excerpt', 
+						'title', 'editor', 'excerpt',
 					),
 				)
 			);
 		}
-		
+
 		/**
 		 * hook into WP's add_meta_boxes action hook
 		 */
 		public function add_meta_boxes()
 		{
 			// Add this metabox to every selected post
-			add_meta_box( 
+			add_meta_box(
 				sprintf('id_wp_bullhorn_%s_section', self::POST_TYPE),
 				sprintf('%s Information', ucwords(str_replace("_", " ", self::POST_TYPE))),
 				array(&$this, 'add_inner_meta_boxes'),
 				self::POST_TYPE
-    	);					
+    	);
 		} // END public function add_meta_boxes()
-		
+
 		/**
 		 * called off of the add meta box
-		 */		
+		 */
 		public function add_inner_meta_boxes($post)
-		{		
+		{
 			// Render the job order metabox
-			include(sprintf("%s/../templates/%s_metabox.php", dirname(__FILE__), self::POST_TYPE));			
+			include(sprintf("%s/../templates/%s_metabox.php", dirname(__FILE__), self::POST_TYPE));
 		} // END public function add_inner_meta_boxes($post)
-		
+
         /**
          * Save the metaboxes for this custom post type
          */
         public function save_post($post_id)
         {
-            // verify if this is an auto save routine. 
+            // verify if this is an auto save routine.
             // If it is our form has not been submitted, so we dont want to do anything
             if(defined('DOING_AUTOSAVE') && DOING_AUTOSAVE)
             {
                 return;
             }
-    
+
             $data = array();
             if(isset($_POST['post_type']))
             {
@@ -177,7 +179,7 @@ if(!class_exists('JobOrder'))
                 global $post_data;
                 $data = $post_data;
             }
-    
+
         	if($data['post_type'] == self::POST_TYPE && current_user_can('edit_post', $post_id))
         	{
         		if(!empty($data['jobOrderID']))
@@ -194,14 +196,14 @@ if(!class_exists('JobOrder'))
         		return;
         	} // if($data['post_type'] == self::POST_TYPE && current_user_can('edit_post', $post_id))
         } // END public function save_post($post_id)
-		
+
 		/**
 		 * Sync the JobOrders from Bullhorn's API
 		 */
 		public function sync()
 		{
             global $wpdb;
-            
+
             // Import the required api classes
             require_once(sprintf("%s/api/JobOrder.php", dirname(__FILE__)));
             require_once(sprintf("%s/api/Connection.php", dirname(__FILE__)));
@@ -209,35 +211,67 @@ if(!class_exists('JobOrder'))
 			// Create a connection to bullhorn
 			$bh_connection = new BullhornConnection(get_option('bh_username'), get_option('bh_password'), get_option('bh_api_key'));
 			$bh_job_order = new BullhornJobOrder();
-			
+
 			// Query for all job order JobOrderIDs
 			if(($arr_ids = $bh_job_order->query($bh_connection)) != False)
 			{
 				// Unpublish all job-order posts
 				$wpdb->query(
 				    sprintf("
-				        UPDATE $wpdb->posts 
-    				    SET post_status = 'pending' 
-    				    WHERE post_type = '%s'", 
+				        UPDATE $wpdb->posts
+    				    SET post_status = 'pending'
+    				    WHERE post_type = '%s'",
     				    self::POST_TYPE
 				    )
 				);
-				
+
 				// Get all of the job-order that are active currently
 				$jobs = $bh_job_order->get_multiple($bh_connection, $arr_ids);
 				foreach($jobs as $job)
 				{
-					// Set up the post
-					$post = array(
-						'post_status' => 'publish',
-						'post_type' => self::POST_TYPE,
-						'post_title' => (string)$job->title,
-						'post_content' => (string)$job->description,
-						'post_excerpt' => (string)$job->excerpt,
-						'post_author' => 1,
-						'filter' => true
-					);
-					
+
+					if (get_option( 'bh_publish_status' ) == '1') {
+
+							// Only publish open, public jobs that are not deleted
+							if($job->isPublic == '1' && $job->isOpen == '1' && $job->isDeleted != '1' && $job->status == 'Open')
+							{
+								$post = array(
+								'post_status' => 'publish',
+								'post_type' => self::POST_TYPE,
+								'post_title' => (string)$job->title,
+								'post_content' => (string)$job->description,
+								'post_excerpt' => (string)$job->excerpt,
+								'post_author' => 1,
+								'filter' => true
+								);
+							}
+							else
+							{
+								$post = array(
+								'post_status' => 'draft',
+								'post_type' => self::POST_TYPE,
+								'post_title' => (string)$job->title,
+								'post_content' => (string)$job->description,
+								'post_excerpt' => (string)$job->excerpt,
+								'post_author' => 1,
+								'filter' => true
+								);
+							} // END if($job->isPublic == '1' && $job->isOpen == '1' && $job->isDeleted != '1' && $job->status == 'Open')
+
+					} else {
+
+							$post = array(
+							'post_status' => 'draft',
+							'post_type' => self::POST_TYPE,
+							'post_title' => (string)$job->title,
+							'post_content' => (string)$job->description,
+							'post_excerpt' => (string)$job->excerpt,
+							'post_author' => 1,
+							'filter' => true
+							);
+
+					} // END if (get_option( 'bh_publish_status' ) == '1')
+
 					// Try to get a post with this JobOrderID
 					$post_id = $wpdb->get_var(
 						sprintf("
@@ -249,7 +283,7 @@ if(!class_exists('JobOrder'))
 							$job->jobOrderID
 						)
 					);
-					
+
 					// Insert or update a post depending on whther the
 					// JobOrderID exists in the system already
 					if($post_id != 0)
@@ -261,8 +295,8 @@ if(!class_exists('JobOrder'))
 					{
 						$post_id = wp_insert_post($post);
 					}
-					
-					// If post_id 
+
+					// If post_id
 					if(!empty($post_id) && $post_id > 0)
 					{
 						// then update all of the metadata
