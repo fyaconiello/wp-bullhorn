@@ -12,7 +12,7 @@ License: GPL2
 Copyright 2012  Francis Yaconiello  (email : francis@yaconiello.com)
 
 This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License, version 2, as 
+it under the terms of the GNU General Public License, version 2, as
 published by the Free Software Foundation.
 
 This program is distributed in the hope that it will be useful,
@@ -44,7 +44,7 @@ if(!class_exists('WP_Bullhorn'))
             add_action('daily_bullhorn_sync', array('WP_Bullhorn', 'sync'));
 
             // Settings link on the plugin page
-            $plugin = plugin_basename(__FILE__); 
+            $plugin = plugin_basename(__FILE__);
             add_filter("plugin_action_links_$plugin", array('WP_Bullhorn', 'plugin_settings_link'));
 
             // Import JobOrder class, and register an instance of it as a global
@@ -72,7 +72,7 @@ if(!class_exists('WP_Bullhorn'))
 
         /**
          * add a menu
-         */		
+         */
         public function add_menu()
         {
             add_options_page('WP Bullhorn Settings', 'WP Bullhorn', 'manage_options', 'wp_bullhorn', array(&$this, 'plugin_settings_page'));
@@ -80,18 +80,19 @@ if(!class_exists('WP_Bullhorn'))
 
         /**
          * Initialize some custom settings
-         */		
+         */
         public function init_settings()
         {
             // register the settings for this plugin
             register_setting(self::OPTIONS_GROUP, 'bh_username');
             register_setting(self::OPTIONS_GROUP, 'bh_password');
             register_setting(self::OPTIONS_GROUP, 'bh_api_key');
+            register_setting(self::OPTIONS_GROUP, 'bh_publish_status');
         } // END public function init_settings()
 
         /**
          * Menu Callback
-         */		
+         */
         public function plugin_settings_page()
         {
             if(!current_user_can('manage_options'))
@@ -107,12 +108,12 @@ if(!class_exists('WP_Bullhorn'))
          * Add the settings link to the plugins page
          */
         public static function plugin_settings_link($links)
-        { 
-            $settings_link = '<a href="options-general.php?page=wp_bullhorn">Settings</a>'; 
-            array_unshift($links, $settings_link); 
-            return $links; 
+        {
+            $settings_link = '<a href="options-general.php?page=wp_bullhorn">Settings</a>';
+            array_unshift($links, $settings_link);
+            return $links;
         }
-        
+
         /**
          * Create a function that syncs all of the API data
          */
@@ -124,25 +125,25 @@ if(!class_exists('WP_Bullhorn'))
             $job_order = new JobOrder();
             $job_order->sync();
         }
-        
+
         /**
          * Activate the plugin
          */
         public static function activate()
         {
-            // Register an event if not already registered            
+            // Register an event if not already registered
             if(!wp_next_scheduled('daily_bullhorn_sync'))
             {
-                // Register an action for this event 
+                // Register an action for this event
                 add_action('daily_bullhorn_sync', array('WP_Bullhorn', 'sync'));
-                // Schedule this event 
+                // Schedule this event
                 wp_schedule_event(time(), 'daily', 'daily_bullhorn_sync');
 	        } // END if(!wp_next_scheduled('daily_bullhorn_sync'))
         } // END public static function activate
 
         /**
          * Deactivate the plugin
-         */		
+         */
         public static function deactivate()
         {
             // Check to see if an event is scheduled

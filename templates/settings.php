@@ -1,10 +1,10 @@
 <div class="wrap">
 <h2>WP Bullhorn</h2>
-<form method="post" action="options.php"> 
+<form method="post" action="options.php">
 <?php @settings_fields(WP_Bullhorn::OPTIONS_GROUP); ?>
 <?php @do_settings_fields(WP_Bullhorn::OPTIONS_GROUP); ?>
 
-<table class="form-table">  
+<table class="form-table">
   <tr valign="top">
   	<th scope="row"><label for="bh_username">Bullhorn Username</label></th>
   	<td>
@@ -23,8 +23,16 @@
 			<input type="text" name="bh_api_key" id="bh_api_key" value="<?php echo get_option('bh_api_key'); ?>" />
 		</td>
   </tr>
+
+  <tr valign="top">
+    <th scope="row">Only publish open, public jobs that are not deleted (others will be saved as drafts)</th>
+    <td>
+      <input type="checkbox" name="bh_publish_status" id="bh_publish_status" value="1" <?php checked( '1', get_option( 'bh_publish_status' ) ); ?> />
+    </td>
+  </tr>
+
 </table>
-    
+
 <?php @submit_button(); ?>
 </form>
 </div>
