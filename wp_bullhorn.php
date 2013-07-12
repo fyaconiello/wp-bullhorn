@@ -3,7 +3,7 @@
 Plugin Name: WP Bullhorn
 Plugin URI: http://fyaconiello.github.com/wp-bullhorn/
 Description: Bullhorn Integration Plugin for Wordpress
-Version: 1.0
+Version: 1.1
 Author: Francis Yaconiello
 Author URI: http://www.yaconiello.com
 License: GPL2
